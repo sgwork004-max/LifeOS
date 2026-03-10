@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { BarChart2, RefreshCw, Sparkles, ChevronDown, ChevronRight } from 'lucide-react'
 import { format, endOfWeek } from 'date-fns'
@@ -74,9 +74,11 @@ export default function WeeklyReport() {
   const { checkins, anxietyEvents } = useEmotional()
   const { goals } = useGoals()
   const [reports, setReports] = useState<WeeklyReport[]>([])
+  const [reportsLoaded, setReportsLoaded] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [selectedReport, setSelectedReport] = useState<WeeklyReport | null>(null)
   const [expandSection, setExpandSection] = useState<string | null>('wins')
+  const autoGenRef = useRef(false)
 
   useEffect(() => {
     if (!user) return
@@ -86,8 +88,19 @@ export default function WeeklyReport() {
         const r = data ?? []
         setReports(r)
         if (r.length > 0) setSelectedReport(r[0])
+        setReportsLoaded(true)
       })
   }, [user])
+
+  // Auto-generate if no report for the current week
+  useEffect(() => {
+    if (!user || !reportsLoaded || autoGenRef.current || habits.length === 0) return
+    const ws = weekStart()
+    if (reports.find((r) => r.week_start === ws)) return
+    autoGenRef.current = true
+    generateReport()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, reportsLoaded, reports, habits])
 
   const generateReport = async () => {
     if (!user) return
@@ -157,8 +170,8 @@ export default function WeeklyReport() {
   const rd = selectedReport?.report_json as WeeklyReportData | null
 
   const chartData = rd ? [
-    { name: 'Habits', score: rd.habit_score, color: '#7c3aed' },
-    { name: 'Emotional', score: rd.emotional_score, color: '#06b6d4' },
+    { name: 'Habits', score: rd.habit_score, color: '#84cc16' },
+    { name: 'Emotional', score: rd.emotional_score, color: '#f97316' },
     { name: 'Health', score: rd.health_score, color: '#22c55e' },
     { name: 'Goals', score: rd.goal_score, color: '#f59e0b' },
   ] : []
@@ -167,12 +180,12 @@ export default function WeeklyReport() {
     { key: 'wins', label: 'What You Crushed', items: rd?.wins ?? [], color: '#22c55e', icon: '✓' },
     { key: 'failures', label: 'Where You Failed', items: rd?.failures ?? [], color: '#ef4444', icon: '✗' },
     { key: 'patterns', label: 'Patterns Detected', items: rd?.patterns ?? [], color: '#f59e0b', icon: '⚠' },
-    { key: 'focus', label: "Next Week's Focus", items: rd?.focus_next_week ?? [], color: '#7c3aed', icon: '→' },
+    { key: 'focus', label: "Next Week's Focus", items: rd?.focus_next_week ?? [], color: '#84cc16', icon: '→' },
   ]
 
   return (
     <div className="flex flex-col h-full">
-      <Topbar title="Weekly Report" subtitle="Brutally honest performance analysis" accentColor="#7c3aed" />
+      <Topbar title="Weekly Report" subtitle="Brutally honest performance analysis" accentColor="#84cc16" />
 
       <div className="flex-1 p-6 space-y-5 overflow-y-auto">
         {/* Generate button */}
@@ -186,7 +199,7 @@ export default function WeeklyReport() {
             onClick={generateReport}
             disabled={generating}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', boxShadow: '0 0 16px #7c3aed40' }}
+            style={{ background: 'linear-gradient(135deg, #84cc16, #65a30d)', boxShadow: '0 0 16px #84cc1640' }}
           >
             <RefreshCw size={14} className={generating ? 'animate-spin' : ''} />
             {generating ? 'Generating…' : 'Generate Report'}
@@ -202,7 +215,7 @@ export default function WeeklyReport() {
                 onClick={() => setSelectedReport(r)}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all border ${
                   selectedReport?.id === r.id
-                    ? 'bg-violet-600/30 border-violet-500/60 text-violet-300'
+                    ? 'bg-lime-600/30 border-lime-500/60 text-lime-300'
                     : 'bg-[#1a1a24] border-[#2a2a3a] text-[#8888aa] hover:text-white'
                 }`}
               >

@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/Badge'
 import type { GoalHorizon, GoalCategory, GoalWithProgress } from '@/types'
 
 const HORIZON_COLORS: Record<GoalHorizon, string> = {
-  'monthly': '#22c55e', 'yearly': '#06b6d4', '5-year': '#7c3aed',
+  'monthly': '#22c55e', 'yearly': '#f97316', '5-year': '#84cc16',
 }
 const CAT_LABELS: Record<GoalCategory, string> = {
   career: 'Career', health: 'Health', relationships: 'Relationships',
@@ -146,10 +146,10 @@ function GoalCard({
                       <button
                         onClick={() => onToggleTask(t.id, !t.completed_at)}
                         className={`w-4 h-4 rounded flex items-center justify-center border transition-all shrink-0 ${
-                          t.completed_at ? 'border-cyan-500 bg-cyan-500/20' : 'border-[#3a3a50]'
+                          t.completed_at ? 'border-orange-500 bg-orange-500/20' : 'border-[#3a3a50]'
                         }`}
                       >
-                        {t.completed_at && <Check size={9} className="text-cyan-400" strokeWidth={3} />}
+                        {t.completed_at && <Check size={9} className="text-orange-400" strokeWidth={3} />}
                       </button>
                       <span className={`text-xs ${t.completed_at ? 'line-through text-[#555570]' : 'text-[#8888aa]'}`}>
                         {t.title}

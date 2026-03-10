@@ -46,7 +46,7 @@ export default function Onboarding() {
           category: habitCat,
           frequency: 'daily',
           importance_weight: habitWeight,
-          color: '#7c3aed',
+          color: '#84cc16',
         })
         if (e) { setError(`Failed to save habit: ${e.message}. Have you run the SQL migrations in Supabase?`); return }
       }
@@ -101,7 +101,7 @@ export default function Onboarding() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse 60% 50% at 50% 0%, #7c3aed10 0%, transparent 70%)',
+            'radial-gradient(ellipse 60% 50% at 50% 0%, #84cc1610 0%, transparent 70%)',
         }}
       />
       <div className="relative w-full max-w-[520px] animate-fade-in">
@@ -116,9 +116,9 @@ export default function Onboarding() {
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     s.id < step
-                      ? 'bg-violet-600 text-white'
+                      ? 'bg-lime-600 text-white'
                       : s.id === step
-                      ? 'bg-violet-600/30 border-2 border-violet-500 text-violet-400'
+                      ? 'bg-lime-600/30 border-2 border-lime-500 text-lime-400'
                       : 'bg-[#1a1a24] border border-[#2a2a3a] text-[#555570]'
                   }`}
                 >
@@ -129,7 +129,7 @@ export default function Onboarding() {
           </div>
           <div className="relative h-1 bg-[#2a2a3a] rounded-full">
             <div
-              className="absolute left-0 top-0 h-1 rounded-full bg-violet-600 transition-all duration-500"
+              className="absolute left-0 top-0 h-1 rounded-full bg-lime-600 transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -140,8 +140,8 @@ export default function Onboarding() {
 
         <div className="rounded-2xl border border-[#2a2a3a] bg-[#111118] p-8 shadow-2xl">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-violet-600/20 flex items-center justify-center">
-              <currentStep.icon size={20} className="text-violet-400" />
+            <div className="w-10 h-10 rounded-xl bg-lime-600/20 flex items-center justify-center">
+              <currentStep.icon size={20} className="text-lime-400" />
             </div>
             <h2 className="text-xl font-bold text-white">{currentStep.title}</h2>
           </div>
@@ -154,9 +154,9 @@ export default function Onboarding() {
               </p>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: 'Habit Tracking', color: '#7c3aed' },
+                  { label: 'Habit Tracking', color: '#84cc16' },
                   { label: 'Health Metrics', color: '#22c55e' },
-                  { label: 'Emotional IQ', color: '#06b6d4' },
+                  { label: 'Emotional IQ', color: '#f97316' },
                   { label: 'Goal System', color: '#f59e0b' },
                 ].map(({ label, color }) => (
                   <div
@@ -184,7 +184,7 @@ export default function Onboarding() {
                 placeholder="e.g. Morning workout, Meditate, Read 20 pages…"
                 value={habitName}
                 onChange={(e) => setHabitName(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] text-white text-sm placeholder:text-[#555570] focus:outline-none focus:border-violet-500/60 transition-colors"
+                className="w-full px-3 py-2.5 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] text-white text-sm placeholder:text-[#555570] focus:outline-none focus:border-lime-500/60 transition-colors"
               />
               <div>
                 <label className="text-sm text-[#8888aa] mb-2 block">Category</label>
@@ -195,7 +195,7 @@ export default function Onboarding() {
                       onClick={() => setHabitCat(c)}
                       className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                         habitCat === c
-                          ? 'bg-violet-600/30 border border-violet-500/60 text-violet-300'
+                          ? 'bg-lime-600/30 border border-lime-500/60 text-lime-300'
                           : 'bg-[#1a1a24] border border-[#2a2a3a] text-[#8888aa] hover:text-white'
                       }`}
                     >
@@ -215,7 +215,7 @@ export default function Onboarding() {
                       onClick={() => setHabitWeight(w)}
                       className={`w-9 h-9 rounded-lg text-sm font-bold transition-all ${
                         habitWeight === w
-                          ? 'bg-violet-600 text-white'
+                          ? 'bg-lime-600 text-white'
                           : 'bg-[#1a1a24] border border-[#2a2a3a] text-[#8888aa] hover:text-white'
                       }`}
                     >
@@ -327,8 +327,8 @@ export default function Onboarding() {
               disabled={!canContinue() || loading}
               className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold text-white transition-all disabled:opacity-40"
               style={{
-                background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
-                boxShadow: '0 0 20px #7c3aed40',
+                background: 'linear-gradient(135deg, #84cc16, #65a30d)',
+                boxShadow: '0 0 20px #84cc1640',
               }}
             >
               {loading

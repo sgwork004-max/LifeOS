@@ -17,7 +17,7 @@ import type { EmotionTag, CbtDistortion } from '@/types'
 const EMOTION_TAGS: EmotionTag[] = ['Joy', 'Calm', 'Anxious', 'Angry', 'Sad', 'Focused', 'Overwhelmed', 'Grateful']
 const EMOTION_COLORS: Record<EmotionTag, string> = {
   Joy: '#f59e0b', Calm: '#22c55e', Anxious: '#ef4444', Angry: '#dc2626',
-  Sad: '#6366f1', Focused: '#06b6d4', Overwhelmed: '#f97316', Grateful: '#a78bfa',
+  Sad: '#fb923c', Focused: '#f97316', Overwhelmed: '#f97316', Grateful: '#a3e635',
 }
 
 const CBT_DISTORTIONS: CbtDistortion[] = [
@@ -150,20 +150,20 @@ export default function EmotionalIntelligence() {
 
   return (
     <div className="flex flex-col h-full">
-      <Topbar title="Emotional IQ" subtitle="Daily check-ins, journaling & patterns" accentColor="#06b6d4" />
+      <Topbar title="Emotional IQ" subtitle="Daily check-ins, journaling & patterns" accentColor="#f97316" />
 
       <div className="flex-1 p-6 space-y-5 overflow-y-auto">
         {/* Stats row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <p className="text-xs text-[#8888aa] uppercase tracking-widest mb-1">Avg Mood (7d)</p>
-            <p className="text-2xl font-black text-cyan-400">
+            <p className="text-2xl font-black text-orange-400">
               {checkins.length ? (checkins.slice(0, 7).reduce((s, c) => s + c.mood, 0) / Math.min(checkins.length, 7)).toFixed(1) : '—'}/10
             </p>
           </Card>
           <Card>
             <p className="text-xs text-[#8888aa] uppercase tracking-widest mb-1">Avg Energy (7d)</p>
-            <p className="text-2xl font-black text-cyan-400">
+            <p className="text-2xl font-black text-orange-400">
               {checkins.length ? (checkins.slice(0, 7).reduce((s, c) => s + c.energy, 0) / Math.min(checkins.length, 7)).toFixed(1) : '—'}/10
             </p>
           </Card>
@@ -184,7 +184,7 @@ export default function EmotionalIntelligence() {
 
         {/* Mood chart */}
         {chartData.length > 0 && (
-          <Card glow="#06b6d4">
+          <Card glow="#f97316">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-white">Mood & Energy Trend</h3>
               {aiEnabled && (
@@ -197,8 +197,8 @@ export default function EmotionalIntelligence() {
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="moodGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#06b6d4" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#f97316" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#f97316" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="energyGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#22c55e" stopOpacity={0.3} />
@@ -209,7 +209,7 @@ export default function EmotionalIntelligence() {
                 <XAxis dataKey="date" tick={{ fill: '#8888aa', fontSize: 10 }} tickLine={false} axisLine={false} />
                 <YAxis domain={[0, 10]} tick={{ fill: '#8888aa', fontSize: 10 }} tickLine={false} axisLine={false} />
                 <Tooltip contentStyle={{ background: '#1a1a24', border: '1px solid #2a2a3a', borderRadius: 8 }} labelStyle={{ color: '#8888aa' }} />
-                <Area type="monotone" dataKey="mood" stroke="#06b6d4" fill="url(#moodGrad)" strokeWidth={2} name="Mood" />
+                <Area type="monotone" dataKey="mood" stroke="#f97316" fill="url(#moodGrad)" strokeWidth={2} name="Mood" />
                 <Area type="monotone" dataKey="energy" stroke="#22c55e" fill="url(#energyGrad)" strokeWidth={2} name="Energy" />
               </AreaChart>
             </ResponsiveContainer>
@@ -254,19 +254,19 @@ export default function EmotionalIntelligence() {
 
         {/* Tab content */}
         {tab === 'checkin' && (
-          <Card glow="#06b6d4">
+          <Card glow="#f97316">
             {todayCheckin ? (
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center">
-                    <Heart size={12} className="text-cyan-400" />
+                  <div className="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center">
+                    <Heart size={12} className="text-orange-400" />
                   </div>
                   <p className="text-sm font-semibold text-white">Today's check-in complete</p>
                 </div>
                 <div className="flex gap-4">
                   <div className="p-3 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] flex-1 text-center">
                     <p className="text-xs text-[#8888aa]">Mood</p>
-                    <p className="text-2xl font-black text-cyan-400">{todayCheckin.mood}/10</p>
+                    <p className="text-2xl font-black text-orange-400">{todayCheckin.mood}/10</p>
                   </div>
                   <div className="p-3 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] flex-1 text-center">
                     <p className="text-xs text-[#8888aa]">Energy</p>
@@ -292,10 +292,10 @@ export default function EmotionalIntelligence() {
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <label className="text-sm text-[#8888aa]">Mood</label>
-                    <span className="text-sm font-bold text-cyan-400">{mood}/10</span>
+                    <span className="text-sm font-bold text-orange-400">{mood}/10</span>
                   </div>
                   <input type="range" min={1} max={10} value={mood} onChange={(e) => setMood(+e.target.value)}
-                    className="w-full" style={{ accentColor: '#06b6d4' }} />
+                    className="w-full" style={{ accentColor: '#f97316' }} />
                   <div className="flex justify-between text-xs text-[#555570] mt-1"><span>Terrible</span><span>Amazing</span></div>
                 </div>
 
@@ -340,7 +340,7 @@ export default function EmotionalIntelligence() {
 
                 <button onClick={submitCheckin}
                   className="w-full py-2.5 rounded-lg text-sm font-semibold text-white transition-all"
-                  style={{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)', boxShadow: '0 0 20px #06b6d440' }}
+                  style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 0 20px #f9731640' }}
                 >
                   Submit Check-in
                 </button>
@@ -350,7 +350,7 @@ export default function EmotionalIntelligence() {
         )}
 
         {tab === 'gratitude' && (
-          <Card glow="#06b6d4">
+          <Card glow="#f97316">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-white">Gratitude Log</h3>
               <div className="flex items-center gap-2">
@@ -382,7 +382,7 @@ export default function EmotionalIntelligence() {
                 <button onClick={submitGratitude}
                   disabled={gratEntries.every((e) => !e.trim())}
                   className="w-full py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-40 transition-all"
-                  style={{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)', boxShadow: '0 0 20px #06b6d440' }}
+                  style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 0 20px #f9731640' }}
                 >Log Gratitude</button>
               </div>
             )}
@@ -460,7 +460,7 @@ export default function EmotionalIntelligence() {
 
         {tab === 'cbt' && (
           <div className="space-y-4">
-            <Card glow="#06b6d4">
+            <Card glow="#f97316">
               <h3 className="font-semibold text-white mb-4">Cognitive Distortion Spotter</h3>
               <div className="space-y-4">
                 <div>
@@ -477,7 +477,7 @@ export default function EmotionalIntelligence() {
                     {CBT_DISTORTIONS.map((d) => (
                       <button key={d} onClick={() => toggleDistortion(d)}
                         className={`px-3 py-2 rounded-lg text-xs font-medium text-left transition-all border ${
-                          distortions.includes(d) ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-300' : 'bg-[#1a1a24] border-[#2a2a3a] text-[#8888aa] hover:text-white'
+                          distortions.includes(d) ? 'bg-orange-500/20 border-orange-500/60 text-orange-300' : 'bg-[#1a1a24] border-[#2a2a3a] text-[#8888aa] hover:text-white'
                         }`}
                       >{d}</button>
                     ))}
@@ -493,7 +493,7 @@ export default function EmotionalIntelligence() {
                 </div>
                 <button onClick={submitCbt} disabled={!negThought.trim()}
                   className="w-full py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-40"
-                  style={{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)', boxShadow: '0 0 20px #06b6d440' }}
+                  style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 0 20px #f9731640' }}
                 >Log CBT Entry</button>
               </div>
             </Card>
@@ -507,7 +507,7 @@ export default function EmotionalIntelligence() {
                     <XAxis dataKey="name" tick={{ fill: '#8888aa', fontSize: 10 }} tickLine={false} axisLine={false} />
                     <YAxis tick={{ fill: '#8888aa', fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
                     <Tooltip contentStyle={{ background: '#1a1a24', border: '1px solid #2a2a3a', borderRadius: 8 }} labelStyle={{ color: '#8888aa' }} />
-                    <Bar dataKey="count" fill="#06b6d4" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="count" fill="#f97316" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </Card>

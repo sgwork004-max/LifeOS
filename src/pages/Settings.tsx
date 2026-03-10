@@ -1,20 +1,36 @@
 import { useState } from 'react'
-import { Settings as SettingsIcon, Key, Brain, Save, Check, Eye, EyeOff, Sun, Moon } from 'lucide-react'
+import { Settings as SettingsIcon, Key, Brain, Save, Check, Eye, EyeOff, Sun, Moon, Bell, BellOff } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { useAppStore } from '@/stores/appStore'
+import { useHabits } from '@/hooks/useHabits'
+import { loadPrefs, savePrefs, scheduleAll, requestPermission, permissionGranted } from '@/lib/notifications'
+import type { NotifPrefs } from '@/lib/notifications'
 import Topbar from '@/components/layout/Topbar'
 import { Card } from '@/components/ui/Card'
+
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 export default function Settings() {
   const { user, anthropicKey, aiEnabled, setAnthropicKey, setAiEnabled } = useAuthStore()
   const { theme, setTheme } = useAppStore()
+  const { habits } = useHabits()
+
+  // AI key state
   const [key, setKey] = useState(anthropicKey)
   const [showKey, setShowKey] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [testing, setTesting] = useState(false)
   const [testResult, setTestResult] = useState<'ok' | 'fail' | null>(null)
+
+  // Notification prefs state
+  const [prefs, setPrefs] = useState<NotifPrefs>(() => loadPrefs())
+  const [notifSaving, setNotifSaving] = useState(false)
+  const [notifSaved, setNotifSaved] = useState(false)
+  const [permStatus, setPermStatus] = useState<'granted' | 'denied' | 'default'>(
+    typeof Notification !== 'undefined' ? Notification.permission : 'default'
+  )
 
   const saveKey = async () => {
     if (!user) return
@@ -44,6 +60,28 @@ export default function Settings() {
       setTestResult('fail')
     } finally {
       setTesting(false)
+    }
+  }
+
+  const handleToggleNotifs = async () => {
+    if (!prefs.enabled) {
+      const granted = await requestPermission()
+      setPermStatus(granted ? 'granted' : 'denied')
+      if (!granted) return
+    }
+    setPrefs((p) => ({ ...p, enabled: !p.enabled }))
+  }
+
+  const saveNotifs = async () => {
+    setNotifSaving(true)
+    try {
+      savePrefs(prefs)
+      const habitNames = Object.fromEntries(habits.map((h) => [h.id, h.name]))
+      await scheduleAll(prefs, habitNames)
+      setNotifSaved(true)
+      setTimeout(() => setNotifSaved(false), 2000)
+    } finally {
+      setNotifSaving(false)
     }
   }
 
@@ -84,7 +122,7 @@ export default function Settings() {
             </div>
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className={`relative w-11 h-6 rounded-full transition-colors ${theme === 'light' ? 'bg-violet-500' : 'bg-[#2a2a3a]'}`}
+              className={`relative w-11 h-6 rounded-full transition-colors ${theme === 'light' ? 'bg-lime-500' : 'bg-[#2a2a3a]'}`}
             >
               <span
                 className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${theme === 'light' ? 'translate-x-6' : 'translate-x-1'}`}
@@ -92,13 +130,12 @@ export default function Settings() {
             </button>
           </div>
 
-          {/* Dark / Light quick-select pills */}
           <div className="flex gap-2 mt-3">
             <button
               onClick={() => setTheme('dark')}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium border transition-all ${
                 theme === 'dark'
-                  ? 'border-violet-500 bg-violet-500/10 text-violet-400'
+                  ? 'border-lime-500 bg-lime-500/10 text-lime-400'
                   : 'border-[#2a2a3a] text-[#8888aa] hover:border-[#3a3a50]'
               }`}
             >
@@ -117,6 +154,124 @@ export default function Settings() {
           </div>
         </Card>
 
+        {/* Notifications */}
+        <Card glow="#84cc16">
+          <div className="flex items-center gap-2 mb-4">
+            <Bell size={16} className="text-lime-400" />
+            <h3 className="font-semibold text-white">Notifications</h3>
+          </div>
+
+          <div className="space-y-4">
+            {/* Enable toggle */}
+            <div className="flex items-center justify-between p-3 rounded-lg bg-[#1a1a24] border border-[#2a2a3a]">
+              <div>
+                <p className="text-sm font-medium text-white">Enable Notifications</p>
+                <p className="text-xs text-[#8888aa]">Get reminders for habits, check-ins, and mentor insights</p>
+              </div>
+              <button
+                onClick={handleToggleNotifs}
+                className={`relative w-11 h-6 rounded-full transition-colors ${prefs.enabled ? 'bg-lime-500' : 'bg-[#2a2a3a]'}`}
+              >
+                <span
+                  className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${prefs.enabled ? 'translate-x-6' : 'translate-x-1'}`}
+                />
+              </button>
+            </div>
+
+            {/* Permission denied warning */}
+            {permStatus === 'denied' && (
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                <BellOff size={14} className="text-red-400 shrink-0" />
+                <p className="text-xs text-red-300">
+                  Notifications are blocked in your browser. Enable them in site settings and try again.
+                </p>
+              </div>
+            )}
+
+            {/* Time pickers — only when enabled */}
+            {prefs.enabled && (
+              <div className="space-y-3">
+                {/* Daily check-in */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-white">✨ Daily Check-in</p>
+                    <p className="text-xs text-[#8888aa]">Log mood and intentions</p>
+                  </div>
+                  <input
+                    type="time"
+                    value={prefs.checkinTime}
+                    onChange={(e) => setPrefs((p) => ({ ...p, checkinTime: e.target.value }))}
+                    className="px-3 py-1.5 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] text-white text-sm focus:outline-none focus:border-lime-500/60"
+                  />
+                </div>
+
+                {/* Gratitude */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-white">🙏 Gratitude Reminder</p>
+                    <p className="text-xs text-[#8888aa]">Evening gratitude log</p>
+                  </div>
+                  <input
+                    type="time"
+                    value={prefs.gratitudeTime}
+                    onChange={(e) => setPrefs((p) => ({ ...p, gratitudeTime: e.target.value }))}
+                    className="px-3 py-1.5 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] text-white text-sm focus:outline-none focus:border-lime-500/60"
+                  />
+                </div>
+
+                {/* Weekly weight */}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1">
+                    <p className="text-sm text-white">⚖️ Weight Reminder</p>
+                    <p className="text-xs text-[#8888aa]">Weekly weigh-in prompt</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={prefs.weightDay}
+                      onChange={(e) => setPrefs((p) => ({ ...p, weightDay: Number(e.target.value) }))}
+                      className="px-2 py-1.5 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] text-white text-xs focus:outline-none focus:border-lime-500/60"
+                    >
+                      {DAYS.map((d, i) => (
+                        <option key={d} value={i}>{d}</option>
+                      ))}
+                    </select>
+                    <input
+                      type="time"
+                      value={prefs.weightTime}
+                      onChange={(e) => setPrefs((p) => ({ ...p, weightTime: e.target.value }))}
+                      className="px-3 py-1.5 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] text-white text-sm focus:outline-none focus:border-lime-500/60"
+                    />
+                  </div>
+                </div>
+
+                {/* AI Mentor insight */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-white">🧠 AI Mentor Insight</p>
+                    <p className="text-xs text-[#8888aa]">Daily proactive nudge</p>
+                  </div>
+                  <input
+                    type="time"
+                    value={prefs.mentorTime}
+                    onChange={(e) => setPrefs((p) => ({ ...p, mentorTime: e.target.value }))}
+                    className="px-3 py-1.5 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] text-white text-sm focus:outline-none focus:border-lime-500/60"
+                  />
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={saveNotifs}
+              disabled={notifSaving}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all disabled:opacity-40"
+              style={{ background: 'linear-gradient(135deg, #84cc16, #65a30d)', boxShadow: '0 0 16px #84cc1640' }}
+            >
+              {notifSaved ? <Check size={14} /> : <Save size={14} />}
+              {notifSaved ? 'Saved!' : notifSaving ? 'Saving…' : 'Save Notification Settings'}
+            </button>
+          </div>
+        </Card>
+
         {/* AI Settings */}
         <Card glow="#f59e0b">
           <div className="flex items-center gap-2 mb-4">
@@ -125,7 +280,6 @@ export default function Settings() {
           </div>
 
           <div className="space-y-4">
-            {/* Toggle */}
             <div className="flex items-center justify-between p-3 rounded-lg bg-[#1a1a24] border border-[#2a2a3a]">
               <div>
                 <p className="text-sm font-medium text-white">Enable AI Insights</p>
@@ -141,7 +295,6 @@ export default function Settings() {
               </button>
             </div>
 
-            {/* API Key input */}
             <div>
               <label className="flex items-center gap-1.5 text-sm text-[#8888aa] mb-1.5">
                 <Key size={13} /> Anthropic API Key
@@ -191,7 +344,7 @@ export default function Settings() {
               style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', boxShadow: '0 0 16px #f59e0b40' }}
             >
               {saved ? <Check size={14} /> : <Save size={14} />}
-              {saved ? 'Saved!' : saving ? 'Saving…' : 'Save Settings'}
+              {saved ? 'Saved!' : saving ? 'Saving…' : 'Save AI Settings'}
             </button>
           </div>
         </Card>

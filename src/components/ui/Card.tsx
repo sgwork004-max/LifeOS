@@ -17,7 +17,9 @@ export function Card({ children, className, glow, onClick }: CardProps) {
         onClick && 'cursor-pointer hover:border-[var(--border-hover)]',
         className,
       )}
-      style={glow ? { boxShadow: `0 0 20px ${glow}30` } : undefined}
+      style={{ boxShadow: glow
+        ? `0 1px 3px rgba(0,0,0,.15), 0 4px 14px rgba(0,0,0,.10), 0 0 18px ${glow}18`
+        : '0 1px 3px rgba(0,0,0,.12), 0 4px 12px rgba(0,0,0,.08)' }}
     >
       {children}
     </div>

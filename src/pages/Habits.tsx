@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Flame, Plus, Trash2, Check, X, AlertTriangle, Sparkles } from 'lucide-react'
+import { Flame, Plus, Trash2, Check, X, AlertTriangle, Sparkles, Bell } from 'lucide-react'
 import { useHabits } from '@/hooks/useHabits'
 import { useAuthStore } from '@/stores/authStore'
 import { callClaude, buildHabitInsightPrompt } from '@/lib/anthropic'
+import { loadPrefs, savePrefs, scheduleAll } from '@/lib/notifications'
 import Topbar from '@/components/layout/Topbar'
 import { Card } from '@/components/ui/Card'
 import { Modal } from '@/components/ui/Modal'
@@ -11,20 +12,25 @@ import HabitHeatmap from '@/components/charts/HabitHeatmap'
 import type { Habit } from '@/types'
 
 const CATEGORIES = ['Fitness', 'Mindfulness', 'Learning', 'Nutrition', 'Sleep', 'Productivity', 'Other']
-const COLORS = ['#7c3aed', '#22c55e', '#06b6d4', '#f59e0b', '#ef4444', '#ec4899', '#f97316']
+const COLORS = ['#84cc16', '#22c55e', '#14b8a6', '#f59e0b', '#ef4444', '#ec4899', '#f97316']
 
 function HabitCard({
   habit,
   onCheck,
   onDelete,
   onInsight,
+  notifTimes,
+  onUpdateTimes,
 }: {
   habit: ReturnType<typeof useHabits>['habits'][0]
   onCheck: () => void
   onDelete: () => void
   onInsight: () => void
+  notifTimes: string[]
+  onUpdateTimes: (times: string[]) => void
 }) {
   const [checking, setChecking] = useState(false)
+  const [showReminders, setShowReminders] = useState(false)
   const { aiEnabled } = useAuthStore()
 
   const handleCheck = async () => {
@@ -35,6 +41,21 @@ function HabitCard({
 
   const missed3 =
     !habit.completed_today && habit.current_streak === 0 && habit.completion_30d < 30
+
+  const addTime = () => {
+    if (notifTimes.length >= 3) return
+    onUpdateTimes([...notifTimes, '09:00'])
+  }
+
+  const updateTime = (i: number, val: string) => {
+    const next = [...notifTimes]
+    next[i] = val
+    onUpdateTimes(next)
+  }
+
+  const removeTime = (i: number) => {
+    onUpdateTimes(notifTimes.filter((_, idx) => idx !== i))
+  }
 
   return (
     <Card className="animate-slide-up">
@@ -51,8 +72,8 @@ function HabitCard({
           style={
             habit.completed_today
               ? {
-                  backgroundColor: habit.color || '#7c3aed',
-                  boxShadow: `0 0 12px ${habit.color || '#7c3aed'}60`,
+                  backgroundColor: habit.color || '#84cc16',
+                  boxShadow: `0 0 12px ${habit.color || '#84cc16'}60`,
                 }
               : undefined
           }
@@ -97,8 +118,41 @@ function HabitCard({
 
           {/* Heatmap */}
           <div className="mt-3">
-            <HabitHeatmap logs={habit.logs} color={habit.color || '#7c3aed'} days={63} />
+            <HabitHeatmap logs={habit.logs} color={habit.color || '#84cc16'} days={63} />
           </div>
+
+          {/* Reminders section */}
+          {showReminders && (
+            <div className="mt-3 pt-3 border-t border-[#2a2a3a]">
+              <p className="text-xs text-[#8888aa] mb-2">Reminder times (up to 3)</p>
+              <div className="flex flex-wrap gap-2 items-center">
+                {notifTimes.map((t, i) => (
+                  <div key={i} className="flex items-center gap-1">
+                    <input
+                      type="time"
+                      value={t}
+                      onChange={(e) => updateTime(i, e.target.value)}
+                      className="px-2 py-1 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] text-white text-xs focus:outline-none focus:border-lime-500/60"
+                    />
+                    <button
+                      onClick={() => removeTime(i)}
+                      className="w-5 h-5 rounded flex items-center justify-center text-[#555570] hover:text-red-400 transition-colors"
+                    >
+                      <X size={11} />
+                    </button>
+                  </div>
+                ))}
+                {notifTimes.length < 3 && (
+                  <button
+                    onClick={addTime}
+                    className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#1a1a24] border border-dashed border-[#3a3a50] text-[#8888aa] hover:text-white hover:border-lime-500/40 text-xs transition-all"
+                  >
+                    <Plus size={10} /> Add time
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Actions */}
@@ -112,6 +166,17 @@ function HabitCard({
               <Sparkles size={13} />
             </button>
           )}
+          <button
+            onClick={() => setShowReminders((v) => !v)}
+            className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all ${
+              showReminders || notifTimes.length > 0
+                ? 'bg-lime-600/20 border-lime-500/40 text-lime-400'
+                : 'bg-[#1a1a24] border-[#2a2a3a] text-[#555570] hover:text-lime-400 hover:border-lime-500/30'
+            }`}
+            title="Reminders"
+          >
+            <Bell size={13} />
+          </button>
           <button
             onClick={onDelete}
             className="w-7 h-7 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] flex items-center justify-center text-[#555570] hover:text-red-400 hover:border-red-500/30 transition-all"
@@ -131,6 +196,18 @@ export default function Habits() {
   const [showCreate, setShowCreate] = useState(false)
   const [insight, setInsight] = useState<{ habit: string; text: string } | null>(null)
   const [insightLoading, setInsightLoading] = useState(false)
+  const [notifPrefs, setNotifPrefs] = useState(() => loadPrefs())
+
+  const updateHabitReminders = async (habitId: string, times: string[]) => {
+    const updated = {
+      ...notifPrefs,
+      habitTimes: { ...notifPrefs.habitTimes, [habitId]: times },
+    }
+    setNotifPrefs(updated)
+    savePrefs(updated)
+    const habitNames = Object.fromEntries(habits.map((h) => [h.id, h.name]))
+    await scheduleAll(updated, habitNames)
+  }
 
   // New habit form
   const [name, setName] = useState('')
@@ -169,12 +246,12 @@ export default function Habits() {
       <Topbar
         title="Habits"
         subtitle={`${completed}/${total} completed today`}
-        accentColor="#7c3aed"
+        accentColor="#84cc16"
       />
 
       <div className="flex-1 p-6 space-y-5 overflow-y-auto">
         {/* Summary bar */}
-        <Card glow="#7c3aed">
+        <Card glow="#84cc16">
           <div className="flex items-center justify-between mb-3">
             <div>
               <p className="text-2xl font-black text-white">{pct}%</p>
@@ -184,7 +261,7 @@ export default function Habits() {
               <p className="text-sm text-[#8888aa]">{completed} / {total} habits done</p>
               <button
                 onClick={() => setShowCreate(true)}
-                className="mt-1 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600/20 border border-violet-500/40 text-violet-300 text-sm font-medium hover:bg-violet-600/30 transition-all"
+                className="mt-1 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-lime-600/20 border border-lime-500/40 text-lime-300 text-sm font-medium hover:bg-lime-600/30 transition-all"
               >
                 <Plus size={13} /> New Habit
               </button>
@@ -195,8 +272,8 @@ export default function Habits() {
               className="h-2 rounded-full transition-all duration-700"
               style={{
                 width: `${pct}%`,
-                background: 'linear-gradient(90deg, #7c3aed, #a78bfa)',
-                boxShadow: '0 0 8px #7c3aed60',
+                background: 'linear-gradient(90deg, #84cc16, #a3e635)',
+                boxShadow: '0 0 8px #84cc1660',
               }}
             />
           </div>
@@ -216,7 +293,7 @@ export default function Habits() {
             <p className="text-sm text-[#555570] mt-1">Create your first habit to start tracking</p>
             <button
               onClick={() => setShowCreate(true)}
-              className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600/20 border border-violet-500/40 text-violet-300 text-sm font-medium"
+              className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-lime-600/20 border border-lime-500/40 text-lime-300 text-sm font-medium"
             >
               <Plus size={14} /> Add Habit
             </button>
@@ -230,6 +307,8 @@ export default function Habits() {
                 onCheck={() => checkHabit(habit.id)}
                 onDelete={() => deleteHabit(habit.id)}
                 onInsight={() => fetchInsight(habit)}
+                notifTimes={notifPrefs.habitTimes[habit.id] ?? []}
+                onUpdateTimes={(times) => updateHabitReminders(habit.id, times)}
               />
             ))}
           </div>
@@ -246,7 +325,7 @@ export default function Habits() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Morning run, Meditate…"
-              className="w-full px-3 py-2 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] text-white text-sm placeholder:text-[#555570] focus:outline-none focus:border-violet-500/60"
+              className="w-full px-3 py-2 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] text-white text-sm placeholder:text-[#555570] focus:outline-none focus:border-lime-500/60"
             />
           </div>
 
@@ -256,7 +335,7 @@ export default function Habits() {
               {CATEGORIES.map((c) => (
                 <button key={c} onClick={() => setCat(c)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                    cat === c ? 'bg-violet-600/30 border border-violet-500/60 text-violet-300' : 'bg-[#1a1a24] border border-[#2a2a3a] text-[#8888aa] hover:text-white'
+                    cat === c ? 'bg-lime-600/30 border border-lime-500/60 text-lime-300' : 'bg-[#1a1a24] border border-[#2a2a3a] text-[#8888aa] hover:text-white'
                   }`}
                 >{c}</button>
               ))}
@@ -269,7 +348,7 @@ export default function Habits() {
               {(['daily', 'weekly'] as const).map((f) => (
                 <button key={f} onClick={() => setFreq(f)}
                   className={`flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-all ${
-                    freq === f ? 'bg-violet-600/30 border border-violet-500/60 text-violet-300' : 'bg-[#1a1a24] border border-[#2a2a3a] text-[#8888aa] hover:text-white'
+                    freq === f ? 'bg-lime-600/30 border border-lime-500/60 text-lime-300' : 'bg-[#1a1a24] border border-[#2a2a3a] text-[#8888aa] hover:text-white'
                   }`}
                 >{f}</button>
               ))}
@@ -282,7 +361,7 @@ export default function Habits() {
               {[1,2,3,4,5].map((w) => (
                 <button key={w} onClick={() => setWeight(w)}
                   className={`w-9 h-9 rounded-lg text-sm font-bold transition-all ${
-                    weight === w ? 'bg-violet-600 text-white' : 'bg-[#1a1a24] border border-[#2a2a3a] text-[#8888aa] hover:text-white'
+                    weight === w ? 'bg-lime-600 text-white' : 'bg-[#1a1a24] border border-[#2a2a3a] text-[#8888aa] hover:text-white'
                   }`}
                 >{w}</button>
               ))}
@@ -309,7 +388,7 @@ export default function Habits() {
             onClick={handleCreate}
             disabled={!name.trim()}
             className="w-full py-2.5 rounded-lg text-sm font-semibold text-white transition-all disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', boxShadow: '0 0 20px #7c3aed40' }}
+            style={{ background: 'linear-gradient(135deg, #84cc16, #65a30d)', boxShadow: '0 0 20px #84cc1640' }}
           >
             Create Habit
           </button>
@@ -320,13 +399,13 @@ export default function Habits() {
       <Modal open={!!insight || insightLoading} onClose={() => setInsight(null)} title="AI Insight">
         {insightLoading ? (
           <div className="flex flex-col items-center py-6 gap-3">
-            <div className="w-6 h-6 rounded-full border-2 border-violet-500 border-t-transparent animate-spin" />
+            <div className="w-6 h-6 rounded-full border-2 border-lime-500 border-t-transparent animate-spin" />
             <p className="text-sm text-[#8888aa]">Analyzing your pattern…</p>
           </div>
         ) : insight ? (
           <div className="space-y-3">
-            <p className="text-sm font-semibold text-violet-400">{insight.habit}</p>
-            <div className="p-4 rounded-xl bg-[#1a1a24] border border-violet-500/20">
+            <p className="text-sm font-semibold text-lime-400">{insight.habit}</p>
+            <div className="p-4 rounded-xl bg-[#1a1a24] border border-lime-500/20">
               <p className="text-sm text-[#f0f0ff] leading-relaxed">{insight.text}</p>
             </div>
           </div>

@@ -23,7 +23,7 @@ const Settings = lazy(() => import('@/pages/Settings'))
 function PageLoader() {
   return (
     <div className="flex-1 flex items-center justify-center">
-      <div className="w-8 h-8 rounded-full border-2 border-violet-500 border-t-transparent animate-spin" />
+      <div className="w-8 h-8 rounded-full border-2 border-lime-500 border-t-transparent animate-spin" />
     </div>
   )
 }
@@ -35,7 +35,7 @@ function AppRoutes() {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-violet-500 border-t-transparent animate-spin" />
+          <div className="w-10 h-10 rounded-full border-2 border-lime-500 border-t-transparent animate-spin" />
           <p className="text-sm text-[#8888aa]">Loading LifeOS…</p>
         </div>
       </div>

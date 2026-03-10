@@ -1,8 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer,
 } from 'recharts'
-import { Flame, Activity, Brain, Target, AlertTriangle, X } from 'lucide-react'
+import { Flame, Activity, Brain, Target, AlertTriangle, X, ChevronRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { useHabits } from '@/hooks/useHabits'
 import { useHealth } from '@/hooks/useHealth'
@@ -12,27 +12,38 @@ import { useAuthStore } from '@/stores/authStore'
 import { useAppStore } from '@/stores/appStore'
 import { computeTodayScore, scoreColor, scoreLabel } from '@/lib/scoreEngine'
 import { runPatternEngine } from '@/lib/patternEngine'
+import { getCachedInsight, runMentorEngine } from '@/lib/mentorEngine'
+import { loadPrefs, scheduleAll } from '@/lib/notifications'
+import type { MentorInsight } from '@/lib/mentorEngine'
 import { supabase, today } from '@/lib/supabase'
 import Topbar from '@/components/layout/Topbar'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { useNavigate } from 'react-router-dom'
 
+const INSIGHT_TYPE_COLOR: Record<string, string> = {
+  pattern: '#f59e0b',
+  motivation: '#84cc16',
+  prompt: '#f97316',
+  observation: '#06b6d4',
+}
+
 const LAYER_CONFIGS = [
-  { key: 'habit', label: 'Habits', color: '#7c3aed', icon: Flame, path: '/habits' },
+  { key: 'habit', label: 'Habits', color: '#84cc16', icon: Flame, path: '/habits' },
   { key: 'health', label: 'Health', color: '#22c55e', icon: Activity, path: '/health' },
-  { key: 'emotional', label: 'Emotional IQ', color: '#06b6d4', icon: Brain, path: '/emotional' },
+  { key: 'emotional', label: 'Emotional IQ', color: '#f97316', icon: Brain, path: '/emotional' },
   { key: 'goal', label: 'Goals', color: '#f59e0b', icon: Target, path: '/goals' },
 ] as const
 
 export default function Dashboard() {
-  const { user } = useAuthStore()
+  const { user, anthropicKey, aiEnabled } = useAuthStore()
   const { habits } = useHabits()
   const { todayLog, logs: healthLogs } = useHealth()
   const { todayCheckin, checkins, anxietyEvents } = useEmotional()
   const { goals } = useGoals()
   const { todayScore, setTodayScore, alerts, setAlerts, dismissAlert } = useAppStore()
   const navigate = useNavigate()
+  const [mentorInsight, setMentorInsight] = useState<MentorInsight | null>(() => getCachedInsight())
 
   // Compute today's score whenever data changes
   useEffect(() => {
@@ -67,6 +78,23 @@ export default function Dashboard() {
       localStorage.setItem('lifeos_pattern_run', today())
     })
   }, [user, habits, healthLogs, anxietyEvents, goals])
+
+  // Run mentor engine once per day
+  useEffect(() => {
+    if (!user || habits.length === 0) return
+    runMentorEngine({ habits, healthLogs, checkins, goals, anthropicKey, aiEnabled }).then((insight) => {
+      if (insight) setMentorInsight(insight)
+    })
+  }, [user, habits])
+
+  // Schedule notifications on app open
+  useEffect(() => {
+    if (!user || habits.length === 0) return
+    const prefs = loadPrefs()
+    if (!prefs.enabled) return
+    const habitNames = Object.fromEntries(habits.map((h) => [h.id, h.name]))
+    scheduleAll(prefs, habitNames)
+  }, [user, habits])
 
   // Load alerts
   useEffect(() => {
@@ -125,6 +153,33 @@ export default function Dashboard() {
             </button>
           </div>
         ))}
+
+        {/* Mentor Insight */}
+        {mentorInsight && (
+          <Card glow="#84cc16" className="border-lime-500/20">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#84cc1620' }}>
+                <Brain size={16} style={{ color: '#84cc16' }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-xs font-semibold text-lime-400">AI Mentor</p>
+                  <Badge color={INSIGHT_TYPE_COLOR[mentorInsight.type] ?? '#84cc16'}>
+                    {mentorInsight.type}
+                  </Badge>
+                </div>
+                <p className="text-sm font-semibold text-white">{mentorInsight.title}</p>
+                <p className="text-sm text-[#c0c0cc] mt-1 leading-relaxed">{mentorInsight.body}</p>
+              </div>
+              <button
+                onClick={() => navigate(mentorInsight.url)}
+                className="shrink-0 w-7 h-7 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] flex items-center justify-center text-[#8888aa] hover:text-white transition-colors"
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          </Card>
+        )}
 
         {/* Score + radar */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -202,12 +257,12 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <p className="text-xs text-[#8888aa] uppercase tracking-widest mb-2">Habits Today</p>
-            <p className="text-2xl font-black text-violet-400">{habitsToday} / {habitsTotal}</p>
+            <p className="text-2xl font-black text-lime-400">{habitsToday} / {habitsTotal}</p>
             <p className="text-xs text-[#555570] mt-1">{habitsTotal > 0 ? Math.round((habitsToday / habitsTotal) * 100) : 0}% complete</p>
           </Card>
           <Card>
             <p className="text-xs text-[#8888aa] uppercase tracking-widest mb-2">Mood Today</p>
-            <p className="text-2xl font-black text-cyan-400">{avgMood ? `${avgMood}/10` : '—'}</p>
+            <p className="text-2xl font-black text-orange-400">{avgMood ? `${avgMood}/10` : '—'}</p>
             <p className="text-xs text-[#555570] mt-1">{todayCheckin ? 'Checked in' : 'Not logged yet'}</p>
           </Card>
           <Card>

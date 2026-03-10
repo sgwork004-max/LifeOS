@@ -19,7 +19,7 @@ function bmi(weight: number, heightCm: number = 175): number {
 }
 
 function bmiCategory(b: number): { label: string; color: string } {
-  if (b < 18.5) return { label: 'Underweight', color: '#06b6d4' }
+  if (b < 18.5) return { label: 'Underweight', color: '#f97316' }
   if (b < 25) return { label: 'Normal', color: '#22c55e' }
   if (b < 30) return { label: 'Overweight', color: '#f59e0b' }
   return { label: 'Obese', color: '#ef4444' }
@@ -203,7 +203,7 @@ export default function Health() {
                 <span className="text-xs text-[#8888aa]">BMI Gauge</span>
                 <span className="text-xs font-bold" style={{ color: bmiInfo?.color }}>{bmiInfo?.label}</span>
               </div>
-              <div className="relative h-2 rounded-full" style={{ background: 'linear-gradient(90deg, #06b6d4, #22c55e, #f59e0b, #ef4444)' }}>
+              <div className="relative h-2 rounded-full" style={{ background: 'linear-gradient(90deg, #f97316, #22c55e, #f59e0b, #ef4444)' }}>
                 <div
                   className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-white shadow"
                   style={{ left: `${Math.min(Math.max(((bmiVal - 15) / 25) * 100, 0), 100)}%`, transform: 'translate(-50%,-50%)' }}

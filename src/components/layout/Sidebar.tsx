@@ -9,9 +9,9 @@ import { scoreColor } from '@/lib/scoreEngine'
 
 const NAV = [
   { to: '/', label: 'Dashboard', icon: Zap, color: '#f0f0ff' },
-  { to: '/habits', label: 'Habits', icon: Flame, color: '#7c3aed' },
+  { to: '/habits', label: 'Habits', icon: Flame, color: '#84cc16' },
   { to: '/health', label: 'Health', icon: Activity, color: '#22c55e' },
-  { to: '/emotional', label: 'Emotional IQ', icon: Brain, color: '#06b6d4' },
+  { to: '/emotional', label: 'Emotional IQ', icon: Brain, color: '#f97316' },
   { to: '/goals', label: 'Goals', icon: Target, color: '#f59e0b' },
   { to: '/report', label: 'Weekly Report', icon: BarChart2, color: '#f0f0ff' },
 ]
@@ -52,10 +52,12 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="px-5 py-5 border-b border-[var(--border)]">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center">
-            <Zap size={16} className="text-white" fill="currentColor" />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#1c1917', border: '1px solid #44403c' }}>
+            <svg width="20" height="20" viewBox="0 0 512 512" fill="none">
+              <path d="M 172 152 L 172 360 L 348 360" stroke="#a3e635" strokeWidth="80" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </div>
-          <span className="text-lg font-extrabold text-white tracking-tight">LifeOS</span>
+          <span className="text-lg font-bold text-white tracking-tight">LifeOS</span>
         </div>
       </div>
 
@@ -119,7 +121,7 @@ export default function Sidebar() {
           Settings
         </NavLink>
         <div className="flex items-center gap-2 px-3 py-2.5">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center shrink-0">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-lime-500 to-emerald-600 flex items-center justify-center shrink-0">
             <User size={13} className="text-white" />
           </div>
           <span className="text-xs text-[#8888aa] truncate flex-1">

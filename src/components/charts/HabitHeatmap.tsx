@@ -8,7 +8,7 @@ interface Props {
   days?: number
 }
 
-export default function HabitHeatmap({ logs, color = '#7c3aed', days = 91 }: Props) {
+export default function HabitHeatmap({ logs, color = '#84cc16', days = 91 }: Props) {
   const cells = useMemo(() => {
     const end = new Date()
     const start = subDays(end, days - 1)

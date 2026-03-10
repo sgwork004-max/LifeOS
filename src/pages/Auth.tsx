@@ -39,14 +39,14 @@ export default function Auth() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse 60% 50% at 50% 0%, #7c3aed15 0%, transparent 70%)',
+            'radial-gradient(ellipse 60% 50% at 50% 0%, #84cc1615 0%, transparent 70%)',
         }}
       />
 
       <div className="relative w-full max-w-[400px] animate-fade-in">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center mb-4 shadow-[0_0_30px_#7c3aed50]">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-lime-500 to-emerald-700 flex items-center justify-center mb-4 shadow-[0_0_30px_#84cc1650]">
             <Zap size={28} className="text-white" fill="currentColor" />
           </div>
           <h1 className="text-3xl font-black text-white tracking-tight">LifeOS</h1>
@@ -78,7 +78,7 @@ export default function Auth() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="w-full px-3 py-2.5 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] text-white text-sm placeholder:text-[#555570] focus:outline-none focus:border-violet-500/60 transition-colors"
+                className="w-full px-3 py-2.5 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] text-white text-sm placeholder:text-[#555570] focus:outline-none focus:border-lime-500/60 transition-colors"
               />
             </div>
 
@@ -92,7 +92,7 @@ export default function Auth() {
                   required
                   minLength={6}
                   placeholder="••••••••"
-                  className="w-full px-3 py-2.5 pr-10 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] text-white text-sm placeholder:text-[#555570] focus:outline-none focus:border-violet-500/60 transition-colors"
+                  className="w-full px-3 py-2.5 pr-10 rounded-lg bg-[#1a1a24] border border-[#2a2a3a] text-white text-sm placeholder:text-[#555570] focus:outline-none focus:border-lime-500/60 transition-colors"
                 />
                 <button
                   type="button"
@@ -120,8 +120,8 @@ export default function Auth() {
               disabled={loading}
               className="w-full py-2.5 rounded-lg font-semibold text-white text-sm transition-all disabled:opacity-50"
               style={{
-                background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
-                boxShadow: '0 0 20px #7c3aed40',
+                background: 'linear-gradient(135deg, #84cc16, #65a30d)',
+                boxShadow: '0 0 20px #84cc1640',
               }}
             >
               {loading ? 'Loading…' : mode === 'signin' ? 'Sign In' : 'Create Account'}

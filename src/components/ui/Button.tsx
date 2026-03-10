@@ -29,7 +29,7 @@ export function Button({
   const variants = {
     primary: accent
       ? ''
-      : 'bg-violet-600 hover:bg-violet-500 text-white border border-violet-500/50',
+      : 'bg-lime-600 hover:bg-lime-500 text-white border border-lime-500/50',
     secondary: 'bg-[#1a1a24] hover:bg-[#22223a] text-[#f0f0ff] border border-[#2a2a3a]',
     ghost: 'text-[#8888aa] hover:text-white hover:bg-white/5',
     danger: 'bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30',

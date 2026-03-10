@@ -9,7 +9,7 @@ interface TopbarProps {
   accentColor?: string
 }
 
-export default function Topbar({ title, subtitle, accentColor = '#7c3aed' }: TopbarProps) {
+export default function Topbar({ title, subtitle, accentColor = '#84cc16' }: TopbarProps) {
   const navigate = useNavigate()
   const { alerts } = useAppStore()
   const activeAlerts = alerts.filter((a) => !a.dismissed)
