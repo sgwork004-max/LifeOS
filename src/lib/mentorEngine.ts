@@ -6,7 +6,7 @@
 
 import { callClaude } from '@/lib/anthropic'
 import { today } from '@/lib/supabase'
-import type { Habit, HealthLog, EmotionalCheckin, Goal } from '@/types'
+import type { HabitWithStats, HealthLog, EmotionalCheckin, GoalWithProgress } from '@/types'
 
 export interface MentorInsight {
   title: string
@@ -31,10 +31,10 @@ export function getCachedInsight(): MentorInsight | null {
 }
 
 interface EngineData {
-  habits: Habit[]
+  habits: HabitWithStats[]
   healthLogs: HealthLog[]
   checkins: EmotionalCheckin[]
-  goals: Goal[]
+  goals: GoalWithProgress[]
   anthropicKey: string
   aiEnabled: boolean
 }
@@ -61,10 +61,10 @@ async function aiInsight(data: EngineData): Promise<MentorInsight | null> {
   ).length
 
   const avgMood = data.checkins.length
-    ? Math.round(data.checkins.slice(0, 7).reduce((s, c) => s + c.mood_score, 0) / Math.min(data.checkins.length, 7))
+    ? Math.round(data.checkins.slice(0, 7).reduce((s, c) => s + c.mood, 0) / Math.min(data.checkins.length, 7))
     : null
 
-  const activeGoals = data.goals.filter(g => !g.completed_at).length
+  const activeGoals = data.goals.filter(g => g.progress < 100).length
 
   const prompt = `You are the LifeOS AI Mentor — a direct, insightful coach. Based on the data below, give ONE proactive message (2-3 sentences max). Alternate between: catching a pattern, offering motivation, asking a provocative question, or giving a concrete micro-action. Be specific, personal, and a bit challenging. Never be generic.
 
@@ -93,7 +93,7 @@ function ruleBasedInsight(data: EngineData): MentorInsight {
   ).length
   const total = data.habits.length
 
-  const recentMoods = data.checkins.slice(0, 5).map(c => c.mood_score)
+  const recentMoods = data.checkins.slice(0, 5).map(c => c.mood)
   const avgMood = recentMoods.length
     ? recentMoods.reduce((a, b) => a + b, 0) / recentMoods.length
     : null
