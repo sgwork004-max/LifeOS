@@ -57,7 +57,7 @@ export async function runMentorEngine(data: EngineData): Promise<MentorInsight |
 /* ── AI-powered insight ──────────────────────────────────────────────── */
 async function aiInsight(data: EngineData): Promise<MentorInsight | null> {
   const completedToday = data.habits.filter(h =>
-    h.logs?.some(l => l.logged_at?.startsWith(today()))
+    h.logs?.some(l => l.completed_at?.startsWith(today()))
   ).length
 
   const avgMood = data.checkins.length
@@ -89,7 +89,7 @@ Reply as JSON ONLY:
 /* ── Rule-based fallback (no API key needed) ─────────────────────────── */
 function ruleBasedInsight(data: EngineData): MentorInsight {
   const completedToday = data.habits.filter(h =>
-    h.logs?.some(l => l.logged_at?.startsWith(today()))
+    h.logs?.some(l => l.completed_at?.startsWith(today()))
   ).length
   const total = data.habits.length
 
