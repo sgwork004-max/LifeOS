@@ -1,0 +1,38 @@
+{
+  "name": "LifeOS",
+  "short_name": "LifeOS",
+  "description": "Your personal life operating system — habits, health, emotional intelligence, and goals in one place.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0a0f",
+  "theme_color": "#7c3aed",
+  "categories": ["health", "lifestyle", "productivity"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "url": "/",
+      "description": "View today's life score"
+    },
+    {
+      "name": "Daily Check-in",
+      "url": "/emotional",
+      "description": "Log your mood and emotions"
+    }
+  ]
+}

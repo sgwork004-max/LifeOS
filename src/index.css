@@ -1,0 +1,208 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+/* ─── Design tokens (dark, default) ─────────────────────────────────── */
+:root {
+  --bg:           #0a0a0f;
+  --surface:      #111118;
+  --surface-2:    #1a1a24;
+  --border:       #2a2a3a;
+  --border-hover: #3a3a50;
+  --text:         #f0f0ff;
+  --text-muted:   #8888aa;
+  --text-dim:     #555570;
+  --sidebar-bg:   #0d0d15;
+
+  --violet:  #7c3aed;
+  --emerald: #22c55e;
+  --cyan:    #06b6d4;
+  --amber:   #f59e0b;
+  --red:     #ef4444;
+}
+
+/* ─── Light mode overrides ───────────────────────────────────────────── */
+[data-theme="light"] {
+  --bg:           #f0f0f8;
+  --surface:      #ffffff;
+  --surface-2:    #f5f5fb;
+  --border:       #e0e0ea;
+  --border-hover: #c8c8d8;
+  --text:         #1a1a2e;
+  --text-muted:   #5a5a7a;
+  --text-dim:     #9090a8;
+  --sidebar-bg:   #eaeaf2;
+}
+
+[data-theme="light"] body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Override hardcoded dark backgrounds in light mode */
+[data-theme="light"] [class*="bg-[#0a0a0f]"],
+[data-theme="light"] [class*="bg-[#0d0d15]"],
+[data-theme="light"] [class*="bg-[#111118]"] {
+  background-color: var(--surface) !important;
+}
+[data-theme="light"] [class*="bg-[#1a1a24]"] {
+  background-color: var(--surface-2) !important;
+}
+[data-theme="light"] [class*="bg-[#2a2a3a]"] {
+  background-color: var(--border) !important;
+}
+[data-theme="light"] [class*="border-[#2a2a3a]"] {
+  border-color: var(--border) !important;
+}
+[data-theme="light"] [class*="border-[#3a3a50]"] {
+  border-color: var(--border-hover) !important;
+}
+
+/* Text overrides */
+[data-theme="light"] [class*="text-white"] {
+  color: var(--text) !important;
+}
+[data-theme="light"] [class*="text-[#8888aa]"] {
+  color: var(--text-muted) !important;
+}
+[data-theme="light"] [class*="text-[#555570]"] {
+  color: var(--text-dim) !important;
+}
+
+/* Keep white text on colored/gradient backgrounds */
+[data-theme="light"] [class*="bg-violet"]:not([class*="bg-violet-5"]) [class*="text-white"],
+[data-theme="light"] [class*="bg-emerald"] [class*="text-white"],
+[data-theme="light"] [class*="bg-cyan"] [class*="text-white"],
+[data-theme="light"] [class*="bg-amber"] [class*="text-white"],
+[data-theme="light"] [class*="bg-red"] [class*="text-white"],
+[data-theme="light"] [class*="bg-gradient"] [class*="text-white"],
+[data-theme="light"] button[style*="linear-gradient"] {
+  color: white !important;
+}
+
+/* Scrollbar (adapts to theme) */
+[data-theme="light"] ::-webkit-scrollbar-track { background: var(--surface-2); }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: var(--border); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+/* Recharts light mode */
+[data-theme="light"] .recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+[data-theme="light"] .recharts-cartesian-grid-horizontal line,
+[data-theme="light"] .recharts-cartesian-grid-vertical line {
+  stroke: var(--border) !important;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────── */
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #111118; }
+::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3a50; }
+
+/* ─── Utilities ──────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-gradient-violet {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #7c3aed, #a78bfa);
+  }
+  .text-gradient-emerald {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #22c55e, #4ade80);
+  }
+  .text-gradient-cyan {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #06b6d4, #22d3ee);
+  }
+  .text-gradient-amber {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #f59e0b, #fbbf24);
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  .card-hover {
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .card-hover:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+  .glow-violet  { box-shadow: 0 0 20px #7c3aed40; }
+  .glow-emerald { box-shadow: 0 0 20px #22c55e40; }
+  .glow-cyan    { box-shadow: 0 0 20px #06b6d440; }
+  .glow-amber   { box-shadow: 0 0 20px #f59e0b40; }
+  .glow-red     { box-shadow: 0 0 20px #ef444440; }
+}
+
+/* ─── Recharts dark ──────────────────────────────────────────────────── */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: #1a1a24 !important;
+  border: 1px solid #2a2a3a !important;
+  border-radius: 8px !important;
+}
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: #2a2a3a !important;
+}
+
+/* ─── Range input ────────────────────────────────────────────────────── */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+input[type='range']::-webkit-slider-runnable-track {
+  height: 6px;
+  background: #2a2a3a;
+  border-radius: 3px;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: #7c3aed;
+  margin-top: -6px;
+  box-shadow: 0 0 8px #7c3aed80;
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────── */
+@keyframes fadeIn      { from { opacity: 0; }               to { opacity: 1; } }
+@keyframes slideUp     { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes checkBounce { 0% { transform: scale(0); } 70% { transform: scale(1.2); } 100% { transform: scale(1); } }
+@keyframes streakPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.4) drop-shadow(0 0 8px #f59e0b); } }
+
+.animate-fade-in       { animation: fadeIn      0.3s ease-out; }
+.animate-slide-up      { animation: slideUp     0.3s ease-out; }
+.animate-check-bounce  { animation: checkBounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+.animate-streak-pulse  { animation: streakPulse 2s ease-in-out infinite; }

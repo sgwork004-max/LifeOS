@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Deep space background -->
+    <radialGradient id="bg" cx="40%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="#1e0a3c"/>
+      <stop offset="55%" stop-color="#0c0420"/>
+      <stop offset="100%" stop-color="#040110"/>
+    </radialGradient>
+
+    <!-- Frosted glass fill -->
+    <linearGradient id="glassFill" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.22)"/>
+      <stop offset="35%" stop-color="rgba(160,100,255,0.10)"/>
+      <stop offset="100%" stop-color="rgba(60,20,160,0.15)"/>
+    </linearGradient>
+
+    <!-- Specular highlight (upper-left) -->
+    <radialGradient id="spec" cx="32%" cy="26%" r="52%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.65)"/>
+      <stop offset="45%" stop-color="rgba(255,255,255,0.18)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+
+    <!-- Bottom tint reflection -->
+    <radialGradient id="bottomRefl" cx="55%" cy="80%" r="40%">
+      <stop offset="0%" stop-color="rgba(147,51,234,0.18)"/>
+      <stop offset="100%" stop-color="rgba(147,51,234,0)"/>
+    </radialGradient>
+
+    <!-- Zap violet glow -->
+    <filter id="zapGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur"/>
+      <feFlood flood-color="#a855f7" flood-opacity="0.9" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Ambient glow behind glass -->
+    <filter id="ambGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="22" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Rounded rect clip -->
+    <clipPath id="shape">
+      <rect x="0" y="0" width="512" height="512" rx="115"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#shape)">
+    <!-- Background -->
+    <rect width="512" height="512" fill="url(#bg)"/>
+
+    <!-- Atmospheric blobs -->
+    <circle cx="180" cy="160" r="140" fill="#7c3aed" opacity="0.07"/>
+    <circle cx="350" cy="360" r="100" fill="#4f46e5" opacity="0.05"/>
+
+    <!-- Star particles -->
+    <circle cx="75"  cy="95"  r="1.4" fill="white" opacity="0.35"/>
+    <circle cx="140" cy="55"  r="0.9" fill="white" opacity="0.25"/>
+    <circle cx="430" cy="70"  r="1.4" fill="white" opacity="0.35"/>
+    <circle cx="465" cy="190" r="0.9" fill="white" opacity="0.25"/>
+    <circle cx="55"  cy="370" r="1.4" fill="white" opacity="0.30"/>
+    <circle cx="490" cy="420" r="0.9" fill="white" opacity="0.20"/>
+    <circle cx="90"  cy="460" r="1.2" fill="white" opacity="0.28"/>
+    <circle cx="420" cy="475" r="0.9" fill="white" opacity="0.22"/>
+    <circle cx="200" cy="480" r="1.0" fill="white" opacity="0.18"/>
+    <circle cx="350" cy="40"  r="1.0" fill="white" opacity="0.20"/>
+
+    <!-- Outer ambient glow behind glass -->
+    <circle cx="256" cy="258" r="192" fill="#7c3aed" opacity="0.07" filter="url(#ambGlow)"/>
+
+    <!-- Glass depth shadow (slightly offset) -->
+    <circle cx="256" cy="260" r="174" fill="rgba(40,10,100,0.35)"/>
+
+    <!-- Glass circle — frosted surface -->
+    <circle cx="256" cy="256" r="170" fill="url(#glassFill)"/>
+
+    <!-- Glass outer edge stroke -->
+    <circle cx="256" cy="256" r="170" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>
+
+    <!-- Glass inner edge (violet tint) -->
+    <circle cx="256" cy="256" r="167" fill="none" stroke="rgba(180,130,255,0.14)" stroke-width="2.5"/>
+
+    <!-- Top arc bright highlight (curved rim) -->
+    <path d="M 112,228 A 158,158 0 0 1 400,228"
+          fill="none" stroke="rgba(255,255,255,0.30)"
+          stroke-width="1.5" stroke-linecap="round"/>
+
+    <!-- Specular highlight blob (upper-left) -->
+    <ellipse cx="198" cy="186" rx="108" ry="72" fill="url(#spec)" opacity="0.80"/>
+
+    <!-- Secondary small specular (edge glint) -->
+    <ellipse cx="148" cy="162" rx="28" ry="18" fill="white" opacity="0.20"/>
+
+    <!-- Bottom glass reflection -->
+    <ellipse cx="290" cy="368" rx="90" ry="28" fill="url(#bottomRefl)"/>
+
+    <!-- Zap — glow pass -->
+    <g filter="url(#zapGlow)">
+      <path d="M 278 108 L 200 270 L 252 270 L 230 404 L 313 242 L 260 242 Z"
+            fill="white"/>
+    </g>
+
+    <!-- Zap — crisp white fill -->
+    <path d="M 278 108 L 200 270 L 252 270 L 230 404 L 313 242 L 260 242 Z"
+          fill="white" opacity="0.95"/>
+  </g>
+</svg>
